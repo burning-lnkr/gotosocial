@@ -80,6 +80,11 @@ func (f *Filter) isStatusPublicTimelineable(ctx context.Context, requester *gtsm
 		return false, nil
 	}
 
+	// Don't show posts from silenced accounts
+	if !status.Account.SilencedAt.IsZero() {
+		return false, nil
+	}
+
 	// Check whether status is visible to requesting account.
 	visible, err := f.StatusVisible(ctx, requester, status)
 	if err != nil {
