@@ -25,7 +25,7 @@ import { matchSorter } from "match-sorter";
 import { useTextInput } from "../../../lib/form";
 import { TextInput } from "../../../components/form/inputs";
 import Loading from "../../../components/loading";
-import { useDomainAllowsQuery, useDomainBlocksQuery } from "../../../lib/query/admin/domain-permissions/get";
+import { useDomainAllowsQuery, useDomainBlocksQuery, useDomainSilencesQuery } from "../../../lib/query/admin/domain-permissions/get";
 import type { MappedDomainPerms } from "../../../lib/types/domain-permission";
 import { NoArg } from "../../../lib/types/query";
 import { PermType } from "../../../lib/types/perm";
@@ -37,7 +37,7 @@ export default function DomainPermissionsOverview() {
 	
 	// Parse perm type from routing params.
 	let params = useParams();
-	if (params.permType !== "blocks" && params.permType !== "allows") {
+	if (params.permType !== "blocks" && params.permType !== "allows" && params.permType !== "silences") {
 		throw "unrecognized perm type " + params.permType;
 	}
 	const permType = params.permType.slice(0, -1) as PermType;
@@ -48,17 +48,22 @@ export default function DomainPermissionsOverview() {
 	// Fetch / wait for desired perms to load.
 	const { data: blocks, isLoading: isLoadingBlocks } = useDomainBlocksQuery(NoArg, { skip: permType !== "block" });
 	const { data: allows, isLoading: isLoadingAllows } = useDomainAllowsQuery(NoArg, { skip: permType !== "allow" });
-	
-	let data: MappedDomainPerms | undefined;
-	let isLoading: boolean;
+	const { data: silences, isLoading: isLoadingSilences } = useDomainSilencesQuery(NoArg, { skip: permType !== "silence" });
 
-	if (permType == "block") {
-		data = blocks;
-		isLoading = isLoadingBlocks;
-	} else {
-		data = allows;
-		isLoading = isLoadingAllows;
-	}
+	const getDomainData = (permType: string) => {
+		switch (permType) {
+			case "block":
+				return { data: blocks, isLoading: isLoadingBlocks };
+			case "allow":
+				return { data: allows, isLoading: isLoadingAllows };
+			case "silence":
+				return { data: silences, isLoading: isLoadingSilences };
+			default:
+				throw new Error(`Unrecognized permission type: ${permType}`);
+		}
+	};
+
+	const { data, isLoading } = getDomainData(permType);
 
 	if (isLoading || data === undefined) {
 		return <Loading />;

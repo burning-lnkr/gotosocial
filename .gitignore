@@ -44,3 +44,6 @@ shell.nix
 # ignore cached pngs from mkdocs serve,
 # while preserving cached fonts.
 /docs/.cache/plugin/social/*.png
+node_modules/.yarn-integrity
+yarn.lock
+.nvmrc

@@ -94,7 +94,7 @@ func (suite *AccountTestSuite) TestAccountActionUnsupported() {
 		adminAcct,
 		request,
 	)
-	suite.EqualError(errWithCode, "admin action type pee pee poo poo is not supported for this endpoint, currently supported types are: [\"suspend\"]")
+	suite.EqualError(errWithCode, "admin action type pee pee poo poo is not supported for this endpoint, currently supported types are: [\"suspend\" \"silence\" \"unsilence\"]")
 	suite.Empty(actionID)
 }
 

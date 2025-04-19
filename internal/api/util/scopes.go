@@ -26,23 +26,24 @@ type Scope string
 const (
 	/* Sub-scopes / scope components */
 
-	scopeAccounts      = "accounts"
-	scopeApplications  = "applications"
-	scopeBlocks        = "blocks"
-	scopeBookmarks     = "bookmarks"
-	scopeConversations = "conversations"
-	scopeDomainAllows  = "domain_allows"
-	scopeDomainBlocks  = "domain_blocks"
-	scopeFavourites    = "favourites"
-	scopeFilters       = "filters"
-	scopeFollows       = "follows"
-	scopeLists         = "lists"
-	scopeMedia         = "media"
-	scopeMutes         = "mutes"
-	scopeNotifications = "notifications"
-	scopeReports       = "reports"
-	scopeSearch        = "search"
-	scopeStatuses      = "statuses"
+	scopeAccounts       = "accounts"
+	scopeApplications   = "applications"
+	scopeBlocks         = "blocks"
+	scopeBookmarks      = "bookmarks"
+	scopeConversations  = "conversations"
+	scopeDomainAllows   = "domain_allows"
+	scopeDomainBlocks   = "domain_blocks"
+	scopeDomainSilences = "domain_silences"
+	scopeFavourites     = "favourites"
+	scopeFilters        = "filters"
+	scopeFollows        = "follows"
+	scopeLists          = "lists"
+	scopeMedia          = "media"
+	scopeMutes          = "mutes"
+	scopeNotifications  = "notifications"
+	scopeReports        = "reports"
+	scopeSearch         = "search"
+	scopeStatuses       = "statuses"
 
 	/* Top-level scopes */
 
@@ -56,40 +57,42 @@ const (
 
 	/* Granular scopes */
 
-	ScopeReadAccounts           Scope = ScopeRead + ":" + scopeAccounts
-	ScopeWriteAccounts          Scope = ScopeWrite + ":" + scopeAccounts
-	ScopeReadApplications       Scope = ScopeRead + ":" + scopeApplications
-	ScopeWriteApplications      Scope = ScopeWrite + ":" + scopeApplications
-	ScopeReadBlocks             Scope = ScopeRead + ":" + scopeBlocks
-	ScopeWriteBlocks            Scope = ScopeWrite + ":" + scopeBlocks
-	ScopeReadBookmarks          Scope = ScopeRead + ":" + scopeBookmarks
-	ScopeWriteBookmarks         Scope = ScopeWrite + ":" + scopeBookmarks
-	ScopeWriteConversations     Scope = ScopeWrite + ":" + scopeConversations
-	ScopeReadFavourites         Scope = ScopeRead + ":" + scopeFavourites
-	ScopeWriteFavourites        Scope = ScopeWrite + ":" + scopeFavourites
-	ScopeReadFilters            Scope = ScopeRead + ":" + scopeFilters
-	ScopeWriteFilters           Scope = ScopeWrite + ":" + scopeFilters
-	ScopeReadFollows            Scope = ScopeRead + ":" + scopeFollows
-	ScopeWriteFollows           Scope = ScopeWrite + ":" + scopeFollows
-	ScopeReadLists              Scope = ScopeRead + ":" + scopeLists
-	ScopeWriteLists             Scope = ScopeWrite + ":" + scopeLists
-	ScopeWriteMedia             Scope = ScopeWrite + ":" + scopeMedia
-	ScopeReadMutes              Scope = ScopeRead + ":" + scopeMutes
-	ScopeWriteMutes             Scope = ScopeWrite + ":" + scopeMutes
-	ScopeReadNotifications      Scope = ScopeRead + ":" + scopeNotifications
-	ScopeWriteNotifications     Scope = ScopeWrite + ":" + scopeNotifications
-	ScopeWriteReports           Scope = ScopeWrite + ":" + scopeReports
-	ScopeReadSearch             Scope = ScopeRead + ":" + scopeSearch
-	ScopeReadStatuses           Scope = ScopeRead + ":" + scopeStatuses
-	ScopeWriteStatuses          Scope = ScopeWrite + ":" + scopeStatuses
-	ScopeAdminReadAccounts      Scope = ScopeAdminRead + ":" + scopeAccounts
-	ScopeAdminWriteAccounts     Scope = ScopeAdminWrite + ":" + scopeAccounts
-	ScopeAdminReadReports       Scope = ScopeAdminRead + ":" + scopeReports
-	ScopeAdminWriteReports      Scope = ScopeAdminWrite + ":" + scopeReports
-	ScopeAdminReadDomainAllows  Scope = ScopeAdminRead + ":" + scopeDomainAllows
-	ScopeAdminWriteDomainAllows Scope = ScopeAdminWrite + ":" + scopeDomainAllows
-	ScopeAdminReadDomainBlocks  Scope = ScopeAdminRead + ":" + scopeDomainBlocks
-	ScopeAdminWriteDomainBlocks Scope = ScopeAdminWrite + ":" + scopeDomainBlocks
+	ScopeReadAccounts             Scope = ScopeRead + ":" + scopeAccounts
+	ScopeWriteAccounts            Scope = ScopeWrite + ":" + scopeAccounts
+	ScopeReadApplications         Scope = ScopeRead + ":" + scopeApplications
+	ScopeWriteApplications        Scope = ScopeWrite + ":" + scopeApplications
+	ScopeReadBlocks               Scope = ScopeRead + ":" + scopeBlocks
+	ScopeWriteBlocks              Scope = ScopeWrite + ":" + scopeBlocks
+	ScopeReadBookmarks            Scope = ScopeRead + ":" + scopeBookmarks
+	ScopeWriteBookmarks           Scope = ScopeWrite + ":" + scopeBookmarks
+	ScopeWriteConversations       Scope = ScopeWrite + ":" + scopeConversations
+	ScopeReadFavourites           Scope = ScopeRead + ":" + scopeFavourites
+	ScopeWriteFavourites          Scope = ScopeWrite + ":" + scopeFavourites
+	ScopeReadFilters              Scope = ScopeRead + ":" + scopeFilters
+	ScopeWriteFilters             Scope = ScopeWrite + ":" + scopeFilters
+	ScopeReadFollows              Scope = ScopeRead + ":" + scopeFollows
+	ScopeWriteFollows             Scope = ScopeWrite + ":" + scopeFollows
+	ScopeReadLists                Scope = ScopeRead + ":" + scopeLists
+	ScopeWriteLists               Scope = ScopeWrite + ":" + scopeLists
+	ScopeWriteMedia               Scope = ScopeWrite + ":" + scopeMedia
+	ScopeReadMutes                Scope = ScopeRead + ":" + scopeMutes
+	ScopeWriteMutes               Scope = ScopeWrite + ":" + scopeMutes
+	ScopeReadNotifications        Scope = ScopeRead + ":" + scopeNotifications
+	ScopeWriteNotifications       Scope = ScopeWrite + ":" + scopeNotifications
+	ScopeWriteReports             Scope = ScopeWrite + ":" + scopeReports
+	ScopeReadSearch               Scope = ScopeRead + ":" + scopeSearch
+	ScopeReadStatuses             Scope = ScopeRead + ":" + scopeStatuses
+	ScopeWriteStatuses            Scope = ScopeWrite + ":" + scopeStatuses
+	ScopeAdminReadAccounts        Scope = ScopeAdminRead + ":" + scopeAccounts
+	ScopeAdminWriteAccounts       Scope = ScopeAdminWrite + ":" + scopeAccounts
+	ScopeAdminReadReports         Scope = ScopeAdminRead + ":" + scopeReports
+	ScopeAdminWriteReports        Scope = ScopeAdminWrite + ":" + scopeReports
+	ScopeAdminReadDomainAllows    Scope = ScopeAdminRead + ":" + scopeDomainAllows
+	ScopeAdminWriteDomainAllows   Scope = ScopeAdminWrite + ":" + scopeDomainAllows
+	ScopeAdminReadDomainBlocks    Scope = ScopeAdminRead + ":" + scopeDomainBlocks
+	ScopeAdminWriteDomainBlocks   Scope = ScopeAdminWrite + ":" + scopeDomainBlocks
+	ScopeAdminReadDomainSilences  Scope = ScopeAdminRead + ":" + scopeDomainSilences
+	ScopeAdminWriteDomainSilences Scope = ScopeAdminWrite + ":" + scopeDomainSilences
 )
 
 // Permits returns true if the

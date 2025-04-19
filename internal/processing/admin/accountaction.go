@@ -20,6 +20,7 @@ package admin
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"code.superseriousbusiness.org/gotosocial/internal/ap"
 	apimodel "code.superseriousbusiness.org/gotosocial/internal/api/model"
@@ -43,12 +44,18 @@ func (p *Processor) AccountAction(
 	switch gtsmodel.ParseAdminActionType(request.Type) {
 	case gtsmodel.AdminActionSuspend:
 		return p.accountActionSuspend(ctx, adminAcct, targetAcct, request.Text)
+	case gtsmodel.AdminActionSilence:
+		return p.accountActionSilence(ctx, adminAcct, targetAcct, request.Text)
+	case gtsmodel.AdminActionUnsilence:
+		return p.accountActionUnsilence(ctx, adminAcct, targetAcct, request.Text)
 
 	default:
 		// TODO: add more types to this slice when adding
 		//       more types to the switch statement above.
 		supportedTypes := []string{
 			gtsmodel.AdminActionSuspend.String(),
+			gtsmodel.AdminActionSilence.String(),
+			gtsmodel.AdminActionUnsilence.String(),
 		}
 
 		err := fmt.Errorf(
@@ -89,6 +96,74 @@ func (p *Processor) accountActionSuspend(
 					Target:         targetAcct,
 				},
 			); err != nil {
+				errs := gtserror.NewMultiError(1)
+				errs.Append(err)
+				return errs
+			}
+
+			return nil
+		},
+	)
+
+	return actionID, errWithCode
+}
+
+func (p *Processor) accountActionSilence(
+	ctx context.Context,
+	adminAcct *gtsmodel.Account,
+	targetAcct *gtsmodel.Account,
+	text string,
+) (string, gtserror.WithCode) {
+	actionID := id.NewULID()
+
+	errWithCode := p.state.AdminActions.Run(
+		ctx,
+		&gtsmodel.AdminAction{
+			ID:             actionID,
+			TargetCategory: gtsmodel.AdminActionCategoryAccount,
+			TargetID:       targetAcct.ID,
+			Target:         targetAcct,
+			Type:           gtsmodel.AdminActionSilence,
+			AccountID:      adminAcct.ID,
+			Text:           text,
+		},
+		func(ctx context.Context) gtserror.MultiError {
+			targetAcct.SilencedAt = time.Now()
+			if err := p.state.DB.UpdateAccount(ctx, targetAcct); err != nil {
+				errs := gtserror.NewMultiError(1)
+				errs.Append(err)
+				return errs
+			}
+
+			return nil
+		},
+	)
+
+	return actionID, errWithCode
+}
+
+func (p *Processor) accountActionUnsilence(
+	ctx context.Context,
+	adminAcct *gtsmodel.Account,
+	targetAcct *gtsmodel.Account,
+	text string,
+) (string, gtserror.WithCode) {
+	actionID := id.NewULID()
+
+	errWithCode := p.state.AdminActions.Run(
+		ctx,
+		&gtsmodel.AdminAction{
+			ID:             actionID,
+			TargetCategory: gtsmodel.AdminActionCategoryAccount,
+			TargetID:       targetAcct.ID,
+			Target:         targetAcct,
+			Type:           gtsmodel.AdminActionUnsilence,
+			AccountID:      adminAcct.ID,
+			Text:           text,
+		},
+		func(ctx context.Context) gtserror.MultiError {
+			targetAcct.SilencedAt = time.Time{}
+			if err := p.state.DB.UpdateAccount(ctx, targetAcct); err != nil {
 				errs := gtserror.NewMultiError(1)
 				errs.Append(err)
 				return errs

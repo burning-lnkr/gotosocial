@@ -1,3 +1,15 @@
+# GoToSocial - Burning Fork 🔥
+Experimental GtS fork.  
+Expect the lack of test coverage, outdated docs and overall wreckage.  
+**Backup your database**: There are migrations. Backward compatibility is intended but not guaranteed.  
+## Features  
+### User and domain silencing/unsilencing  
+Silencing hides a user's posts (or all posts of a domain's users) from public (local/federated) timelines.  
+Domain silence uses exact match, so silencing `example.org` won't silence `subdomain.example.org`
+
+Below is the original README.md  
+
+---
 <!--overview-start-->
 # GoToSocial <!-- omit in toc -->
 

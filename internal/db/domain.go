@@ -67,6 +67,24 @@ type Domain interface {
 	// DeleteDomainBlock deletes an instance-level domain block with the given domain, if it exists.
 	DeleteDomainBlock(ctx context.Context, domain string) error
 
+	// PutDomainSilence puts the given instance-level domain silence into the database.
+	PutDomainSilence(ctx context.Context, silence *gtsmodel.DomainSilence) error
+
+	// GetDomainSilence returns one instance-level domain silence with the given domain, if it exists.
+	GetDomainSilence(ctx context.Context, domain string) (*gtsmodel.DomainSilence, error)
+
+	// GetDomainSilenceByID returns one instance-level domain silence with the given id, if it exists.
+	GetDomainSilenceByID(ctx context.Context, id string) (*gtsmodel.DomainSilence, error)
+
+	// GetDomainSilences returns all instance-level domain silences currently enforced by this instance.
+	GetDomainSilences(ctx context.Context) ([]*gtsmodel.DomainSilence, error)
+
+	// UpdateDomainSilence updates the given domain silence, setting the provided columns (empty for all).
+	UpdateDomainSilence(ctx context.Context, silence *gtsmodel.DomainSilence, columns ...string) error
+
+	// DeleteDomainSilence deletes an instance-level domain silence with the given domain, if it exists.
+	DeleteDomainSilence(ctx context.Context, domain string) error
+
 	/*
 		Block/allow checking functions.
 	*/

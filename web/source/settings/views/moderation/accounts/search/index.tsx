@@ -158,6 +158,7 @@ export function AccountSearchForm() {
 						<>
 							<option value="">Any</option>
 							<option value="pending">Pending only</option>
+							<option value="silenced">Silenced only</option>
 							<option value="disabled">Disabled only</option>
 							<option value="suspended">Suspended only</option>
 						</>
