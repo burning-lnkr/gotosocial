@@ -56,6 +56,7 @@ const (
 	DomainPermissionUnknown DomainPermissionType = iota
 	DomainPermissionBlock                        // Explicitly block a domain.
 	DomainPermissionAllow                        // Explicitly allow a domain.
+	DomainPermissionSilence                      // Explicitly silence a domain.
 )
 
 func (p DomainPermissionType) String() string {
@@ -64,6 +65,8 @@ func (p DomainPermissionType) String() string {
 		return "block"
 	case DomainPermissionAllow:
 		return "allow"
+	case DomainPermissionSilence:
+		return "silence"
 	default:
 		return "unknown"
 	}
@@ -75,6 +78,8 @@ func ParseDomainPermissionType(in string) DomainPermissionType {
 		return DomainPermissionBlock
 	case "allow":
 		return DomainPermissionAllow
+	case "silence":
+		return DomainPermissionSilence
 	default:
 		return DomainPermissionUnknown
 	}

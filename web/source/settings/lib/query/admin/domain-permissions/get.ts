@@ -38,9 +38,22 @@ const extended = gtsApi.injectEndpoints({
 			transformResponse: listToKeyedObject<DomainPerm>("domain"),
 		}),
 
+		domainSilences: build.query<MappedDomainPerms, void>({
+			query: () => ({
+				url: `/api/v1/admin/domain_silences`
+			}),
+			transformResponse: listToKeyedObject<DomainPerm>("domain"),
+		}),
+
 		domainPermissionDrafts: build.query<any, void>({
 			query: () => ({
 				url: `/api/v1/admin/domain_permission_drafts`
+			}),
+		}),
+
+		domainPermissionSubscriptions: build.query<any, void>({
+			query: () => ({
+				url: `/api/v1/admin/domain_permission_subscriptions`
 			}),
 		}),
 	}),
@@ -56,7 +69,13 @@ const useDomainBlocksQuery = extended.useDomainBlocksQuery;
  */
 const useDomainAllowsQuery = extended.useDomainAllowsQuery;
 
+/**
+ * Get admin view of all explicitly silenced domains.
+ */
+const useDomainSilencesQuery = extended.useDomainSilencesQuery;
+
 export {
 	useDomainBlocksQuery,
 	useDomainAllowsQuery,
+	useDomainSilencesQuery,
 };

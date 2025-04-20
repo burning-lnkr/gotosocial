@@ -85,6 +85,15 @@ func (f *Filter) isStatusPublicTimelineable(ctx context.Context, requester *gtsm
 		return false, nil
 	}
 
+	// Don't show posts from silenced domains
+	// TODO: This is *nasty*, we should be able to use the cache here or something.
+	if status.Account.Domain != "" {
+		domainSilence, err := f.state.DB.GetDomainSilence(ctx, status.Account.Domain)
+		if err == nil && domainSilence != nil {
+			return false, nil
+		}
+	}
+
 	// Check whether status is visible to requesting account.
 	visible, err := f.StatusVisible(ctx, requester, status)
 	if err != nil {

@@ -74,6 +74,7 @@ func (c *Caches) Init() {
 	c.initConversationLastStatusIDs()
 	c.initDomainAllow()
 	c.initDomainBlock()
+	c.initDomainSilence()
 	c.initDomainPermissionDraft()
 	c.initDomainPermissionSubscription()
 	c.initDomainPermissionExclude()
