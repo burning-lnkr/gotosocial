@@ -109,6 +109,45 @@ const extended = gtsApi.injectEndpoints({
 				}
 			})
 		}),
+
+		addDomainSilence: build.mutation<MappedDomainPerms, any>({
+			query: (formData) => ({
+				method: "POST",
+				url: `/api/v1/admin/domain_silences`,
+				asForm: true,
+				body: formData,
+				discardEmpty: true
+			}),
+			transformResponse: listToKeyedObject<DomainPerm>("domain"),
+			...replaceCacheOnMutation("domainSilences")
+		}),
+
+		updateDomainSilence: build.mutation<DomainPerm, any>({
+			query: ({ id, ...formData}) => ({
+				method: "PUT",
+				url: `/api/v1/admin/domain_silences/${id}`,
+				asForm: true,
+				body: formData,
+				discardEmpty: false
+			}),
+			...updateCacheOnMutation("domainSilences", {
+				key: (_draft, newData) => {
+					return newData.domain;
+				}
+			})
+		}),
+
+		removeDomainSilence: build.mutation<DomainPerm, string>({
+			query: (id) => ({
+				method: "DELETE",
+				url: `/api/v1/admin/domain_silences/${id}`,
+			}),
+			...removeFromCacheOnMutation("domainSilences", {
+				key: (_draft, newData) => {
+					return newData.domain;
+				}
+			})
+		}),
 	}),
 });
 
@@ -142,11 +181,30 @@ const useRemoveDomainBlockMutation = extended.useRemoveDomainBlockMutation;
  */
 const useRemoveDomainAllowMutation = extended.useRemoveDomainAllowMutation;
 
+/**
+ * Add a single domain permission (silence) by POSTing to `/api/v1/admin/domain_silences`.
+ */
+const useAddDomainSilenceMutation = extended.useAddDomainSilenceMutation;
+
+/**
+ * Update a single domain permission (silence) by PUTing to `/api/v1/admin/domain_silences/{id}`.
+ */
+const useUpdateDomainSilenceMutation = extended.useUpdateDomainSilenceMutation;
+
+/**
+ * Remove a single domain permission (silence) by DELETEing to `/api/v1/admin/domain_silences/{id}`.
+ */
+const useRemoveDomainSilenceMutation = extended.useRemoveDomainSilenceMutation;
+
+
 export {
 	useAddDomainBlockMutation,
 	useAddDomainAllowMutation,
 	useUpdateDomainBlockMutation,
 	useUpdateDomainAllowMutation,
 	useRemoveDomainBlockMutation,
-	useRemoveDomainAllowMutation
+	useRemoveDomainAllowMutation,
+	useAddDomainSilenceMutation,
+	useUpdateDomainSilenceMutation,
+	useRemoveDomainSilenceMutation,
 };

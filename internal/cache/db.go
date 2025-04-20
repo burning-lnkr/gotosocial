@@ -64,6 +64,9 @@ type DBCaches struct {
 	// DomainBlock provides access to the domain block database cache.
 	DomainBlock *domain.Cache
 
+	// DomainSilence provides access to the domain silence database cache.
+	DomainSilence *domain.Cache
+
 	// DomainPermissionDraft provides access to the domain permission draft database cache.
 	DomainPermissionDraft StructCache[*gtsmodel.DomainPermissionDraft]
 
@@ -533,6 +536,10 @@ func (c *Caches) initDomainAllow() {
 
 func (c *Caches) initDomainBlock() {
 	c.DB.DomainBlock = new(domain.Cache)
+}
+
+func (c *Caches) initDomainSilence() {
+	c.DB.DomainSilence = new(domain.Cache)
 }
 
 func (c *Caches) initDomainPermissionDraft() {

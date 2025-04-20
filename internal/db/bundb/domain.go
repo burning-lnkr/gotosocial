@@ -393,3 +393,129 @@ func (d *domainDB) AreURIsBlocked(ctx context.Context, uris []*url.URL) (bool, e
 	}
 	return false, nil
 }
+
+func (d *domainDB) PutDomainSilence(ctx context.Context, silence *gtsmodel.DomainSilence) (err error) {
+	// Normalize the domain as punycode, note the extra
+	// validation step for domain name write operations.
+	silence.Domain, err = util.PunifySafely(silence.Domain)
+	if err != nil {
+		return gtserror.Newf("error punifying domain %s: %w", silence.Domain, err)
+	}
+
+	// Attempt to store domain allow in DB
+	if _, err := d.db.NewInsert().
+		Model(silence).
+		Exec(ctx); err != nil {
+		return err
+	}
+
+	// Clear the domain silence cache (for later reload)
+	d.state.Caches.DB.DomainSilence.Clear()
+
+	return nil
+}
+
+func (d *domainDB) GetDomainSilence(ctx context.Context, domain string) (*gtsmodel.DomainSilence, error) {
+	// Normalize domain as punycode for lookup.
+	domain, err := util.Punify(domain)
+	if err != nil {
+		return nil, gtserror.Newf("error punifying domain %s: %w", domain, err)
+	}
+
+	// Check for easy case, domain referencing *us*
+	if domain == "" || domain == config.GetAccountDomain() ||
+		domain == config.GetHost() {
+		return nil, db.ErrNoEntries
+	}
+
+	var silence gtsmodel.DomainSilence
+
+	// Look for silence matching domain in DB
+	q := d.db.
+		NewSelect().
+		Model(&silence).
+		Where("? = ?", bun.Ident("domain_silence.domain"), domain)
+	if err := q.Scan(ctx); err != nil {
+		return nil, err
+	}
+
+	return &silence, nil
+}
+
+func (d *domainDB) GetDomainSilences(ctx context.Context) ([]*gtsmodel.DomainSilence, error) {
+	silences := []*gtsmodel.DomainSilence{}
+
+	if err := d.db.
+		NewSelect().
+		Model(&silences).
+		Scan(ctx); err != nil {
+		return nil, err
+	}
+
+	return silences, nil
+}
+
+func (d *domainDB) GetDomainSilenceByID(ctx context.Context, id string) (*gtsmodel.DomainSilence, error) {
+	var silence gtsmodel.DomainSilence
+
+	q := d.db.
+		NewSelect().
+		Model(&silence).
+		Where("? = ?", bun.Ident("domain_silence.id"), id)
+	if err := q.Scan(ctx); err != nil {
+		return nil, err
+	}
+
+	return &silence, nil
+}
+
+func (d *domainDB) UpdateDomainSilence(ctx context.Context, silence *gtsmodel.DomainSilence, columns ...string) (err error) {
+	// Normalize the domain as punycode, note the extra
+	// validation step for domain name write operations.
+	silence.Domain, err = util.PunifySafely(silence.Domain)
+	if err != nil {
+		return gtserror.Newf("error punifying domain %s: %w", silence.Domain, err)
+	}
+
+	// Ensure updated_at is set.
+	silence.UpdatedAt = time.Now()
+	if len(columns) != 0 {
+		columns = append(columns, "updated_at")
+	}
+
+	// Attempt to update domain allow.
+	if _, err := d.db.
+		NewUpdate().
+		Model(silence).
+		Column(columns...).
+		Where("? = ?", bun.Ident("domain_silence.id"), silence.ID).
+		Exec(ctx); err != nil {
+		return err
+	}
+
+	// Clear the domain silence cache (for later reload)
+	d.state.Caches.DB.DomainSilence.Clear()
+
+	return nil
+}
+
+func (d *domainDB) DeleteDomainSilence(ctx context.Context, domain string) error {
+	// Normalize domain as punycode for lookup.
+	domain, err := util.Punify(domain)
+	if err != nil {
+		return gtserror.Newf("error punifying domain %s: %w", domain, err)
+	}
+
+	// Attempt to delete domain allow
+	if _, err := d.db.NewDelete().
+		Model((*gtsmodel.DomainSilence)(nil)).
+		Where("? = ?", bun.Ident("domain_silence.domain"), domain).
+		Exec(ctx); err != nil {
+		return err
+	}
+
+	// Clear the domain silence cache (for later reload)
+	d.state.Caches.DB.DomainSilence.Clear()
+
+	return nil
+}
