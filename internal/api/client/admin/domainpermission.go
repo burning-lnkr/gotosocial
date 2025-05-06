@@ -319,10 +319,17 @@ func (m *Module) getDomainPermission(
 ) {
 	// Scope differs based on permType.
 	var requireScope apiutil.Scope
-	if permType == gtsmodel.DomainPermissionBlock {
+	switch permType {
+	case gtsmodel.DomainPermissionBlock:
 		requireScope = apiutil.ScopeAdminReadDomainBlocks
-	} else {
+	case gtsmodel.DomainPermissionAllow:
 		requireScope = apiutil.ScopeAdminReadDomainAllows
+	case gtsmodel.DomainPermissionSilence:
+		requireScope = apiutil.ScopeAdminReadDomainSilences
+	default:
+		err := fmt.Errorf("unrecognized perm type %s", permType)
+		apiutil.ErrorHandler(c, gtserror.NewErrorBadRequest(errors.New(err.Error()), err.Error()), m.processor.InstanceGetV1)
+		return
 	}
 
 	authed, errWithCode := apiutil.TokenAuth(c,

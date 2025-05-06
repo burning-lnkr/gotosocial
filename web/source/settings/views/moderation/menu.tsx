@@ -112,6 +112,11 @@ function ModerationDomainPermsMenu() {
 				icon="fa-check"
 			/>
 			<MenuItem
+				name="Silences"
+				itemUrl="silences"
+				icon="fa-volume-down"
+			/>
+			<MenuItem
 				name="Import/Export"
 				itemUrl="import-export"
 				icon="fa-floppy-o"

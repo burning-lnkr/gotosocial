@@ -79,6 +79,18 @@ func (p *Processor) DomainPermissionCreate(
 			subscriptionID,
 		)
 
+	// Explicitly silence a domain.
+	case gtsmodel.DomainPermissionSilence:
+		return p.createDomainSilence(
+			ctx,
+			adminAcct,
+			domain,
+			obfuscate,
+			publicComment,
+			privateComment,
+			subscriptionID,
+		)
+
 	// Weeping, roaring, red-faced.
 	default:
 		err := gtserror.Newf("unrecognized permission type %d", permissionType)
@@ -113,6 +125,17 @@ func (p *Processor) DomainPermissionUpdate(
 	// Explicitly allow a domain.
 	case gtsmodel.DomainPermissionAllow:
 		return p.updateDomainAllow(
+			ctx,
+			permID,
+			obfuscate,
+			publicComment,
+			privateComment,
+			subscriptionID,
+		)
+
+	// Explicitly silence a domain.
+	case gtsmodel.DomainPermissionSilence:
+		return p.updateDomainSilence(
 			ctx,
 			permID,
 			obfuscate,
@@ -159,6 +182,14 @@ func (p *Processor) DomainPermissionDelete(
 			domainBlockID,
 		)
 
+	// Delete explicit domain silence.
+	case gtsmodel.DomainPermissionSilence:
+		return p.deleteDomainSilence(
+			ctx,
+			adminAcct,
+			domainBlockID,
+		)
+
 	// You do the hokey-cokey and you turn
 	// around, that's what it's all about.
 	default:
@@ -186,7 +217,8 @@ func (p *Processor) DomainPermissionsImport(
 ) (*apimodel.MultiStatus, gtserror.WithCode) {
 	// Ensure known permission type.
 	if permissionType != gtsmodel.DomainPermissionBlock &&
-		permissionType != gtsmodel.DomainPermissionAllow {
+		permissionType != gtsmodel.DomainPermissionAllow &&
+		permissionType != gtsmodel.DomainPermissionSilence {
 		err := gtserror.Newf("unrecognized permission type %d", permissionType)
 		return nil, gtserror.NewErrorInternalError(err)
 	}
@@ -347,6 +379,18 @@ func (p *Processor) DomainPermissionsGet(
 			domainPerms = append(domainPerms, allow)
 		}
 
+	case gtsmodel.DomainPermissionSilence:
+		var silences []*gtsmodel.DomainSilence
+
+		silences, err = p.state.DB.GetDomainSilences(ctx)
+		if err != nil {
+			break
+		}
+
+		for _, silence := range silences {
+			domainPerms = append(domainPerms, silence)
+		}
+
 	default:
 		err = errors.New("unrecognized permission type")
 	}
@@ -390,6 +434,8 @@ func (p *Processor) DomainPermissionGet(
 		domainPerm, err = p.state.DB.GetDomainBlockByID(ctx, id)
 	case gtsmodel.DomainPermissionAllow:
 		domainPerm, err = p.state.DB.GetDomainAllowByID(ctx, id)
+	case gtsmodel.DomainPermissionSilence:
+		domainPerm, err = p.state.DB.GetDomainSilenceByID(ctx, id)
 	default:
 		err = gtserror.New("unrecognized permission type")
 	}

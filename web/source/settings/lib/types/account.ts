@@ -68,6 +68,7 @@ export interface Account {
 	enable_rss: boolean,
 	role: any,
 	suspended?: boolean,
+	silenced?: boolean,
 	source?: AccountSource;
 }
 
@@ -113,7 +114,7 @@ export interface HandleSignupParams {
 
 export interface ActionAccountParams {
 	id: string;
-	action: "suspend";
+	action: "suspend" | "silence" | "unsilence";
 	reason: string;
 }
 

@@ -78,7 +78,9 @@ function ModerateAccount({ account }: { account: AdminAccount }) {
 		>
 			<h3 id="account-moderation-actions">Account Moderation Actions</h3>
 			<div>
-				Currently only the "suspend" action is implemented.
+				Currently the "silence" and "suspend" actions are implemented.
+				<br/>
+				Silencing an account will hide its posts from public timelines.
 				<br/>
 				Suspending an account will delete it from your server,
 				and remove all of its media, posts, relationships, etc.
@@ -95,6 +97,22 @@ function ModerateAccount({ account }: { account: AdminAccount }) {
 				autoCapitalize="sentences"
 			/>
 			<div className="action-buttons">
+				{!account.silenced && (
+					<MutationButton
+						disabled={false}
+						label="Silence"
+						name="silence"
+						result={result}
+					/>
+				)}
+				{account.silenced && (
+					<MutationButton
+						disabled={false}
+						label="Unsilence"
+						name="unsilence"
+						result={result}
+					/>
+				)}
 				<MutationButton
 					disabled={account.suspended || reallySuspend.value === undefined || reallySuspend.value === false}
 					label="Suspend"

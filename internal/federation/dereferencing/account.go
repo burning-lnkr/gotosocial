@@ -839,6 +839,9 @@ func (d *Dereferencer) enrichAccount(
 		if latestAcc.CreatedAt.IsZero() {
 			latestAcc.CreatedAt = account.CreatedAt
 		}
+		// Preserve silencing state from existing account
+		// TODO: check if it helps with https://github.com/burning-lnkr/gotosocial/issues/3, otherwise remove
+		latestAcc.SilencedAt = account.SilencedAt
 
 		// This is an existing account, update the model in the database.
 		if err := d.state.DB.UpdateAccount(ctx, latestAcc); err != nil {

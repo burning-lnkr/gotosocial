@@ -94,6 +94,12 @@ const extended = gtsApi.injectEndpoints({
 						if (action === "suspend") {
 							draft.suspended = true;
 							draft.account.suspended = true;
+						} else if (action === "silence") {
+							draft.silenced = true;
+							draft.account.silenced = true;
+						} else if (action === "unsilence") {
+							draft.silenced = false;
+							draft.account.silenced = false;
 						}
 					})
 				);

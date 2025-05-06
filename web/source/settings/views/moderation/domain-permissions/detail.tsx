@@ -35,6 +35,7 @@ import MutationButton from "../../../components/form/mutation-button";
 import { 
 	useDomainAllowsQuery,
 	useDomainBlocksQuery,
+	useDomainSilencesQuery,
 } from "../../../lib/query/admin/domain-permissions/get";
 import {
 	useAddDomainAllowMutation,
@@ -43,6 +44,9 @@ import {
 	useRemoveDomainBlockMutation,
 	useUpdateDomainAllowMutation,
 	useUpdateDomainBlockMutation,
+	useAddDomainSilenceMutation,
+	useUpdateDomainSilenceMutation,
+	useRemoveDomainSilenceMutation,
 } from "../../../lib/query/admin/domain-permissions/update";
 import { DomainPerm } from "../../../lib/types/domain-permission";
 import { NoArg } from "../../../lib/types/query";
@@ -62,7 +66,7 @@ export default function DomainPermView() {
 	// "blocks" => "block" and "allows" => "allow".
 	const params = useParams();
 	const permTypeRaw = params.permType;
-	if (permTypeRaw !== "blocks" && permTypeRaw !== "allows") {
+	if (permTypeRaw !== "blocks" && permTypeRaw !== "allows" && permTypeRaw !== "silences") {
 		throw "unrecognized perm type " + params.permType;
 	}
 	const permType = useMemo(() => {
@@ -81,11 +85,25 @@ export default function DomainPermView() {
 		isLoading: loadingAllows,
 		isFetching: fetchingAllows,
 	} = useDomainAllowsQuery(NoArg, { skip: permType !== "allow" });
+	const {
+		data: silences = {},
+		isLoading: loadingSilences,
+		isFetching: fetchingSilences,
+	} = useDomainSilencesQuery(NoArg, { skip: permType !== "silence" });
 
 	// Wait until we're done loading.
-	const loading = permType === "block"
-		? loadingBlocks || fetchingBlocks
-		: loadingAllows || fetchingAllows;
+	const loading = (() => {
+		switch (permType) {
+			case "block":
+				return loadingBlocks || fetchingBlocks;
+			case "allow":
+				return loadingAllows || fetchingAllows;
+			case "silence":
+				return loadingSilences || fetchingSilences;
+			default:
+				return false;
+		}
+	})();
 	if (loading) {
 		return <Loading />;
 	}
@@ -109,9 +127,18 @@ export default function DomainPermView() {
 
 	// Check if we already have a perm
 	// of the desired type for this domain.
-	const existingPerm = permType === "block"
-		? blocks[domain]
-		: allows[domain];
+	const existingPerm = (() => {
+		switch (permType) {
+			case "block":
+				return blocks[domain];
+			case "allow":
+				return allows[domain];
+			case "silence":
+				return silences[domain];
+			default:
+				return undefined;
+		}
+	})();
 	
 	const title = <span>Domain {permType} for {domain}</span>;
 
@@ -223,6 +250,9 @@ function CreateOrUpdateDomainPerm({
 	const [ addAllow, addAllowResult ] = useAddDomainAllowMutation();
 	const [ updateAllow, updateAllowResult ] = useUpdateDomainAllowMutation({ fixedCacheKey: perm?.id });
 	const [ removeAllow, removeAllowResult ] = useRemoveDomainAllowMutation({ fixedCacheKey: perm?.id });
+	const [ addSilence, addSilenceResult ] = useAddDomainSilenceMutation();
+	const [ updateSilence, updateSilenceResult ] = useUpdateDomainSilenceMutation({ fixedCacheKey: perm?.id });
+	const [ removeSilence, removeSilenceResult ] = useRemoveDomainSilenceMutation({ fixedCacheKey: perm?.id });
 	
 	const [
 		createOrUpdateTrigger,
@@ -233,16 +263,23 @@ function CreateOrUpdateDomainPerm({
 		switch (true) {
 			case (permType === "block" && !isExistingPerm):
 				return [ addBlock, addBlockResult, removeBlock, removeBlockResult ];
-			case (permType === "block"):
+			case (permType === "block" && isExistingPerm):
 				return [ updateBlock, updateBlockResult, removeBlock, removeBlockResult ];
-			case !isExistingPerm:
+			case (permType === "allow" && !isExistingPerm):
 				return [ addAllow, addAllowResult, removeAllow, removeAllowResult ];
-			default:
+			case (permType === "allow" && isExistingPerm):
 				return [ updateAllow, updateAllowResult, removeAllow, removeAllowResult ];
+			case (permType === "silence" && !isExistingPerm):
+				return [ addSilence, addSilenceResult, removeSilence, removeSilenceResult ];
+			case (permType === "silence" && isExistingPerm):
+				return [ updateSilence, updateSilenceResult, removeSilence, removeSilenceResult ];
+			default:
+				throw "unrecognized perm type " + permType;
 		}
 	}, [permType, isExistingPerm,
 		addBlock, addBlockResult, updateBlock, updateBlockResult, removeBlock, removeBlockResult,
 		addAllow, addAllowResult, updateAllow, updateAllowResult, removeAllow, removeAllowResult,
+		addSilence, addSilenceResult, updateSilence, updateSilenceResult, removeSilence, removeSilenceResult,
 	]);
 
 	// Use appropriate submission params for this

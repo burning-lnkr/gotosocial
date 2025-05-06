@@ -43,7 +43,8 @@ import FormWithData from "../../../lib/form/form-with-data";
 import { useImportDomainPermsMutation } from "../../../lib/query/admin/domain-permissions/import";
 import {
 	useDomainAllowsQuery,
-	useDomainBlocksQuery
+	useDomainBlocksQuery,
+	useDomainSilencesQuery
 } from "../../../lib/query/admin/domain-permissions/get";
 
 import type { DomainPerm, MappedDomainPerms } from "../../../lib/types/domain-permission";
@@ -54,14 +55,28 @@ export interface ProcessImportProps {
 	permType: RadioFormInputHook,
 }
 
+const getDomainQuery = (permType: string | undefined) => {
+	if (!permType) {
+		throw new Error("Permission type is required");
+	}
+
+	switch (permType) {
+		case "allow":
+			return useDomainAllowsQuery;
+		case "silence":
+			return useDomainSilencesQuery;
+		case "block":
+			return useDomainBlocksQuery;
+		default:
+			throw new Error(`Unknown permission type: ${permType}`);
+	}
+};
+
 export const ProcessImport = memo(
 	function ProcessImport({ list, permType }: ProcessImportProps) {
 		return (
 			<FormWithData
-				dataQuery={permType.value == "allow"
-					? useDomainAllowsQuery
-					: useDomainBlocksQuery
-				}
+				dataQuery={getDomainQuery(permType.value)}
 				DataForm={ImportList}
 				{...{ list, permType }}
 			/>
